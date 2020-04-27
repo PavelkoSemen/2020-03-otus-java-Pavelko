@@ -1,4 +1,4 @@
-package ru.otus;
+package ru.otus.test;
 
 import ru.otus.newAnnotation.After;
 import ru.otus.newAnnotation.Before;
@@ -6,9 +6,7 @@ import ru.otus.newAnnotation.Test;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class TestRunner {
     private List<Method> beforeMethods = new ArrayList<>();
@@ -24,7 +22,6 @@ public class TestRunner {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 
     public TestRunner(Class<?> clazz) {
@@ -54,29 +51,22 @@ public class TestRunner {
     private void runTests() {
         for (Method method : otherMethods) {
             Object testObject = instantiate();
-
-            beforeMethods.forEach(beforeMethod -> {
-                try {
-                    beforeMethod.invoke(testObject);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            });
-
             try {
+
+                for (Method beforeMethod : beforeMethods) {
+                    beforeMethod.invoke(testObject);
+                }
+
                 method.invoke(testObject);
+
+                for (Method afterMethod : afterMethods) {
+                    afterMethod.invoke(testObject);
+                }
+
                 countTrueTest += 1;
             } catch (Exception e) {
                 System.out.println(method.getName() + " : " + e.toString());
             }
-
-            afterMethods.forEach(afterMethod -> {
-                try {
-                    afterMethod.invoke(testObject);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            });
 
         }
     }

@@ -1,4 +1,4 @@
-package ru.otus;
+package ru.otus.test;
 
 import ru.otus.newAnnotation.After;
 import ru.otus.newAnnotation.Before;
