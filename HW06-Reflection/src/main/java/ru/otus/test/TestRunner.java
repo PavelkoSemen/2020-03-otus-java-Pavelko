@@ -59,13 +59,18 @@ public class TestRunner {
 
                 method.invoke(testObject);
 
-                for (Method afterMethod : afterMethods) {
-                    afterMethod.invoke(testObject);
-                }
 
                 countTrueTest += 1;
             } catch (Exception e) {
                 System.out.println(method.getName() + " : " + e.toString());
+            } finally {
+                for (Method afterMethod : afterMethods) {
+                    try {
+                        afterMethod.invoke(testObject);
+                    } catch (IllegalAccessException | InvocationTargetException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
         }
