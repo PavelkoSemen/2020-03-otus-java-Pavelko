@@ -6,6 +6,8 @@ import org.objectweb.asm.commons.AdviceAdapter;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Arrays;
+import java.util.List;
 
 import static org.objectweb.asm.Opcodes.H_INVOKESTATIC;
 
@@ -16,7 +18,8 @@ public class MyClassVisitor extends ClassVisitor {
 
     @Override
     public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-        Type[] methodArgumentTypes = Type.getArgumentTypes(descriptor);
+
+        List<Type> methodArgumentTypes =List.of(Type.getArgumentTypes(descriptor));
         MethodVisitor methodVisitor = cv.visitMethod(access, name, descriptor, signature, exceptions);
 
         return new AdviceAdapter(Opcodes.ASM5, methodVisitor, access, name, descriptor) {
@@ -36,12 +39,13 @@ public class MyClassVisitor extends ClassVisitor {
             protected void onMethodEnter() {
 
                 if (isAnnotation) {
+                    Type.getMethodDescriptor(Type.VOID_TYPE,methodArgumentTypes.toArray(new Type[0]));
                     StringBuilder stringBuilder = new StringBuilder("(Ljava/lang/String;");
                     visitVarInsn(Opcodes.ALOAD, 0);
                     visitLdcInsn(name);
-                    for (int i = 0; i < methodArgumentTypes.length; i++) {
-                        visitVarInsn(MyClassVisitor.getOpcodesForVarInsn(methodArgumentTypes[i]), i + 1);
-                        stringBuilder.append(methodArgumentTypes[i]);
+                    for (int i = 0; i < methodArgumentTypes.size(); i++) {
+                        visitVarInsn(MyClassVisitor.getOpcodesForVarInsn(methodArgumentTypes.get(i)), i + 1);
+                        //stringBuilder.append(methodArgumentTypes[i]);
                     }
                     newDescriptor = stringBuilder.append(")V").toString();
                     visitMethodInsn(Opcodes.INVOKEVIRTUAL, "ru/otus/logger/TestClass", "LOG_" + name, newDescriptor, false);
