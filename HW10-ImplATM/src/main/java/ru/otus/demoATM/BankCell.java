@@ -1,30 +1,15 @@
 package ru.otus.demoATM;
 
-public class BankCell {
+public interface BankCell {
 
-    private int numberOfBanknote;
-    private FaceValue faceValue;
+    int getNumberOfBanknote();
 
+    void addNumberOfBanknote();
 
-    public BankCell(FaceValue faceValue) {
-        this.faceValue = faceValue;
-        numberOfBanknote++;
-    }
+    void reduceNumberOfBanknote();
 
-    public int getNumberOfBanknote() {
-        return numberOfBanknote;
-    }
+    FaceValue getFaceValue();
 
-    public void addNumberOfBanknote() {
-        numberOfBanknote = numberOfBanknote + 1;
-    }
+    int amountMoneyInCell();
 
-    public void reduceNumberOfBanknote() {
-        numberOfBanknote = numberOfBanknote - 1;
-    }
-
-
-    public FaceValue getFaceValue(){
-        return faceValue;
-    }
 }

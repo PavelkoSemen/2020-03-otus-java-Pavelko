@@ -3,13 +3,15 @@ package ru.otus.demoATM;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class DemoATM {
-    Map<FaceValue, BankCell> cellLocker = new TreeMap<>((o1, o2) -> o2.getValue() - o1.getValue());
+public class DemoATM implements ATM {
+    private Map<FaceValue, BankCell> cellLocker = new TreeMap<>((o1, o2) -> o2.getValue() - o1.getValue());
 
+    @Override
     public int check() {
         return executeCommand(new CheckCommand(cellLocker));
     }
 
+    @Override
     public void replenish(Integer banknotes) {
         int isReplenish = executeCommand(new PutCommand(cellLocker, banknotes));
         if (isReplenish == -1) {
@@ -17,6 +19,7 @@ public class DemoATM {
         }
     }
 
+    @Override
     public int giveMyMoney(Integer countCash) {
         int money = executeCommand(new GetCommand(cellLocker, countCash));
         if (money == -1) {

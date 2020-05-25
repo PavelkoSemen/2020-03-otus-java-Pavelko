@@ -3,8 +3,8 @@ package ru.otus.demoATM;
 import java.util.Map;
 
 public class PutCommand implements Command {
-    private int moneyToAdd;
-    Map<FaceValue, BankCell> cellLocker;
+    private final int moneyToAdd;
+    private Map<FaceValue, BankCell> cellLocker;
 
     public PutCommand(Map<FaceValue, BankCell> cellLocker, int moneyToAdd) {
         this.moneyToAdd = moneyToAdd;
@@ -25,7 +25,7 @@ public class PutCommand implements Command {
         }
 
         if (cellLocker.get(faceValue) == null) {
-            cellLocker.put(faceValue, new BankCell(faceValue));
+            cellLocker.put(faceValue, new BankCellImpl(faceValue));
             return 1;
         }
 

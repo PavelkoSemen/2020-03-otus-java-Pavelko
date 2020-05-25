@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GetCommand implements Command {
-    private int amountToReceive;
+    private final int amountToReceive;
     private int amountToCheck;
     private Map<FaceValue, BankCell> cellLocker;
     private List<BankCell> cellLockerList;

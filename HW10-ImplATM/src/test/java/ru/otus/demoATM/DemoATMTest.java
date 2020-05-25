@@ -4,21 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.parallel.Execution;
-import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mockito;
-import org.mockito.internal.matchers.Null;
+
 
 class DemoATMTest {
     private final int EXPECTED_CHECK = 11100;
     private final int GET_MONEY = 7500;
 
-    DemoATM demoATM = new DemoATM();
+    private DemoATM demoATM = new DemoATM();
 
     @BeforeEach
-     void SetUP() throws InterruptedException {
+    void SetUP() {
         System.out.println("BeforeEach");
 
         demoATM = new DemoATM();
@@ -38,14 +35,14 @@ class DemoATMTest {
     }
 
     @Test
-    void balanceCheckAfterWithdrawal(){
+    void balanceCheckAfterWithdrawal() {
         demoATM.giveMyMoney(EXPECTED_CHECK);
         assertThat(demoATM.check()).isZero();
 
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {5000,2000,1000,500,100})
+    @ValueSource(ints = {5000, 2000, 1000, 500, 100})
     void allValueShouldBeAddedToATM(int value) {
 
         demoATM.replenish(value);
@@ -53,10 +50,10 @@ class DemoATMTest {
     }
 
     @Test
-    void addBanknoteOfUnspecifiedDenomination(){
+    void addBanknoteOfUnspecifiedDenomination() {
         int banknote = 2312;
         assertThrows(RuntimeException.class,
-                ()->demoATM.replenish(banknote));
+                () -> demoATM.replenish(banknote));
     }
 
     @Test
@@ -68,14 +65,13 @@ class DemoATMTest {
     void giveMyMoneyWithError() {
         int getMoneyForError = 500000;
         assertThrows(RuntimeException.class,
-                ()->demoATM.giveMyMoney(getMoneyForError));
+                () -> demoATM.giveMyMoney(getMoneyForError));
     }
 
     @AfterEach
     void TearDown() {
         demoATM = null;
     }
-
 
 
 }
