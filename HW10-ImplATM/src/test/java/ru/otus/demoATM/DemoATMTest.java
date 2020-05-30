@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class DemoATMTest {
     private final int EXPECTED_CHECK = 11100;
-    private final int GET_MONEY = 7500;
 
     private DemoATM demoATM = new DemoATM();
 
@@ -58,8 +57,11 @@ class DemoATMTest {
 
     @Test
     void giveMyMoney() {
-        assertThat(GET_MONEY).isEqualTo(demoATM.giveMyMoney(GET_MONEY));
+        int getMoney = 7500;
+        assertThat(getMoney).isEqualTo(demoATM.giveMyMoney(getMoney));
     }
+
+
 
     @Test
     void giveMyMoneyWithError() {

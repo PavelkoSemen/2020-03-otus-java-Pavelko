@@ -18,15 +18,15 @@ public class GetCommand implements Command {
 
     @Override
     public Integer execute() {
-        return giveOutCash(amountToReceive);
+        return giveOutCash();
     }
 
-    private int giveOutCash(int amountToReceive) {
+    private int giveOutCash() {
 
         FaceValue[] possibleValues = new FaceValue[0];
 
         for (int i = 0; i < cellLockerList.size(); i++) {
-            boolean isDecision = false;
+            boolean isDecision;
             ArrayList<FaceValue> arrayToIterateOver = new ArrayList<>();
 
             isDecision = iterativeCheck(arrayToIterateOver, i);

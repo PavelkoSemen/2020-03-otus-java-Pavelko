@@ -18,7 +18,7 @@ public class CheckCommand implements Command {
         int balanceCheck = 0;
 
         for (Map.Entry<FaceValue, BankCell> entry : cellLocker.entrySet()) {
-            balanceCheck += entry.getKey().getValue() * entry.getValue().getNumberOfBanknote();
+            balanceCheck += entry.getValue().amountMoneyInCell();
         }
 
         return balanceCheck;
