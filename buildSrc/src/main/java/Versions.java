@@ -4,4 +4,6 @@ public interface Versions {
     String jol = "0.10";
     String asm = "8.0.1";
     String gson = "2.8.6";
+    String glassfishJson = "1.1.4";
+
 }

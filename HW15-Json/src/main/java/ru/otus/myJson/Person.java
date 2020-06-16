@@ -9,6 +9,7 @@ public class Person {
     private int age;
     private List<String> stringList;
     public ArrayList<Integer> integerArrayList;
+    public int [] array = new int[]{1, 2, 3, 4};
 
     public Person(String name, int age, ArrayList<String> stringArrayList, ArrayList<Integer> integerArrayList) {
         this.name = name;
@@ -16,7 +17,10 @@ public class Person {
         this.stringList = stringArrayList;
         this.integerArrayList = integerArrayList;
     }
-
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
 
     public String getName() {
         return name;

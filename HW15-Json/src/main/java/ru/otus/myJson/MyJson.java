@@ -1,14 +1,14 @@
 package ru.otus.myJson;
 
-
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
 import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 public class MyJson {
-    private final String stringFormat = "\"%s\"";
-
 
     public String toJson(Object objectToJson) throws IllegalAccessException {
 
@@ -21,103 +21,121 @@ public class MyJson {
 
     private String toJson(Object objectToJson, Class<?> classOfObject) throws IllegalAccessException {
 
-        StringBuilder stringBuilder = new StringBuilder("{");
-
+        var jsonObjectForString = Json.createObjectBuilder();
         Field[] fields = classOfObject.getDeclaredFields();
 
         for (Field field : fields) {
+
             field.setAccessible(true);
 
-            if (field.get(objectToJson) != null) {
+            Object element = field.get(objectToJson);
+            String nameElement = field.getName();
+            Class<?> typeElement = field.getType();
+
+
+
+            Json.createArrayBuilder();
+            if (element != null) {
 
                 if (Modifier.isTransient(field.getModifiers())) {
                     continue;
                 }
+                if (Collection.class.isAssignableFrom(typeElement)) {
 
-                stringBuilder.append(String.format(stringFormat, field.getName()))
-                        .append(":");
-
-                if (field.getType().equals(String.class)) {
-                    stringBuilder.append(String.format(stringFormat, field.get(objectToJson)))
-                            .append(",");
+                    jsonObjectForString.add(nameElement, convertElementToCollection(element));
                     continue;
                 }
-                if (Collection.class.isAssignableFrom(field.getType())) {
+                if (typeElement.isArray()) {
 
-                    stringBuilder.append(convertCollectionToString(field.get(objectToJson), field))
-                            .append(",");
                     continue;
                 }
-                if (field.getType().isArray()) {
-//
-//
-//                    stringBuilder.append(convertArrayToString(field.get(objectToJson), field))
-//                    .append(",");
+                if (byte.class.equals(typeElement)) {
+                    jsonObjectForString.add(nameElement, (byte) element);
                     continue;
                 }
-
-                stringBuilder.append(field.get(objectToJson))
-                        .append(",");
+                if (short.class.equals(typeElement)) {
+                    jsonObjectForString.add(nameElement, (short) element);
+                    continue;
+                }
+                if (char.class.equals(typeElement)) {
+                    jsonObjectForString.add(nameElement, (char) element);
+                    continue;
+                }
+                if (int.class.equals(typeElement)) {
+                    jsonObjectForString.add(nameElement, (int) element);
+                    continue;
+                }
+                if (long.class.equals(typeElement)) {
+                    jsonObjectForString.add(nameElement, (long) element);
+                    continue;
+                }
+                if (float.class.equals(typeElement)) {
+                    jsonObjectForString.add(nameElement, (float) element);
+                    continue;
+                }
+                if (double.class.equals(typeElement)) {
+                    jsonObjectForString.add(nameElement, (double) element);
+                    continue;
+                }
+                if (String.class.equals(typeElement)) {
+                    jsonObjectForString.add(nameElement, (String) element);
+                }
 
             }
 
         }
-        stringBuilder.replace(stringBuilder.length() - 1, stringBuilder.length(), "}");
 
-        return stringBuilder.toString();
+        return jsonObjectForString.build().toString();
     }
 
 
-    private String convertCollectionToString(Object objectCollection, Field fieldCollection) {
+    private JsonArrayBuilder convertElementToCollection(Object objectCollection) {
+
+        Collection<?> objects = (Collection<?>) objectCollection;
+        return Json.createArrayBuilder(objects);
 
 
-        Type genericFieldType = fieldCollection.getGenericType();
-        ParameterizedType pType = (ParameterizedType) genericFieldType;
-        Type[] typesOfParameters = pType.getActualTypeArguments();
+    }
 
-        if (typesOfParameters[0].equals(String.class)) {
-            Collection<?> objects = (Collection<?>) objectCollection;
-            Object[] arrayObjects = objects.toArray(new Object[0]);
+    private <T> JsonArray createJsonArray(T [] arrayAnyType){
+        var jsonValues = Json.createArrayBuilder();
+        for (int i = 0; i < arrayAnyType.length; i++){
+            jsonValues.add( arrayAnyType[i]);
+        }
 
-            return addQuotationMark(arrayObjects);
+        return jsonValues.build();
 
+    }
+
+    private  JsonArrayBuilder convertElementToArray(Object objectArray, Field fieldArray){
+        Type componentType = fieldArray.getType().getComponentType();
+//        JsonArray arr = Json.createArrayBuilder();
+
+
+        if (byte.class.equals(componentType)) {
+            return Json.createArrayBuilder(Arrays.asList(objectArray));
+        }
+        if (short.class.equals(componentType)) {
+        }
+        if (char.class.equals(componentType)) {
+        }
+        if (int.class.equals(componentType)) {
+
+        }
+        if (long.class.equals(componentType)) {
+
+        }
+        if (float.class.equals(componentType)) {
+
+        }
+        if (double.class.equals(componentType)) {
 
         }
 
-        return objectCollection.toString();
+
+
     }
 
-
-//    private  String convertArrayToString(Object objectArray, Field fieldArray){
-//        Type componentType = fieldArray.getType().getComponentType();
-//
-//
-//
-//        if (componentType.equals(String.class)) {
-//        Object [] objects = (Object[]) objectArray;
-//
-//            return addQuotationMark(objects);
-//
-//        }
-//
-//        int [] ints = (int[]) objectArray;
-//        System.out.println(Arrays.toString(ints));
-//        List<Object> arrayList = Arrays.asList(objectArray);
-//
-//        return arrayList.toString();
-//
-//    }
-
-    private String addQuotationMark(Object[] objects){
-
-        for (int i = 0; i < objects.length; i++) {
-
-            objects[i] = String.format(stringFormat, objects[i]);
-
-        }
-
-        return Arrays.toString(objects);
     }
-
 
 }
