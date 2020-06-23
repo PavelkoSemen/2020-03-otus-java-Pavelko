@@ -1,19 +1,17 @@
 package ru.otus.myJson;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
+import javax.json.*;
 import java.lang.reflect.*;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
 public class MyJson {
 
     public String toJson(Object objectToJson) throws IllegalAccessException {
 
         if (objectToJson == null) {
-            return null;
+
+            return JsonValue.NULL.toString();
+
         }
         return toJson(objectToJson, objectToJson.getClass());
 
@@ -22,6 +20,7 @@ public class MyJson {
     private String toJson(Object objectToJson, Class<?> classOfObject) throws IllegalAccessException {
 
         var jsonObjectForString = Json.createObjectBuilder();
+
         Field[] fields = classOfObject.getDeclaredFields();
 
         for (Field field : fields) {
@@ -32,9 +31,6 @@ public class MyJson {
             String nameElement = field.getName();
             Class<?> typeElement = field.getType();
 
-
-
-            Json.createArrayBuilder();
             if (element != null) {
 
                 if (Modifier.isTransient(field.getModifiers())) {
@@ -46,40 +42,12 @@ public class MyJson {
                     continue;
                 }
                 if (typeElement.isArray()) {
+                    System.out.println(Array.getLength(element));
+                    jsonObjectForString.add(nameElement, convertElementToArray(element, typeElement));
+                    continue;
+                }
 
-                    continue;
-                }
-                if (byte.class.equals(typeElement)) {
-                    jsonObjectForString.add(nameElement, (byte) element);
-                    continue;
-                }
-                if (short.class.equals(typeElement)) {
-                    jsonObjectForString.add(nameElement, (short) element);
-                    continue;
-                }
-                if (char.class.equals(typeElement)) {
-                    jsonObjectForString.add(nameElement, (char) element);
-                    continue;
-                }
-                if (int.class.equals(typeElement)) {
-                    jsonObjectForString.add(nameElement, (int) element);
-                    continue;
-                }
-                if (long.class.equals(typeElement)) {
-                    jsonObjectForString.add(nameElement, (long) element);
-                    continue;
-                }
-                if (float.class.equals(typeElement)) {
-                    jsonObjectForString.add(nameElement, (float) element);
-                    continue;
-                }
-                if (double.class.equals(typeElement)) {
-                    jsonObjectForString.add(nameElement, (double) element);
-                    continue;
-                }
-                if (String.class.equals(typeElement)) {
-                    jsonObjectForString.add(nameElement, (String) element);
-                }
+                jsonObjectForString.add(nameElement, jsonValueFromAnyType(element, typeElement));
 
             }
 
@@ -87,7 +55,6 @@ public class MyJson {
 
         return jsonObjectForString.build().toString();
     }
-
 
     private JsonArrayBuilder convertElementToCollection(Object objectCollection) {
 
@@ -97,45 +64,43 @@ public class MyJson {
 
     }
 
-    private <T> JsonArray createJsonArray(T [] arrayAnyType){
-        var jsonValues = Json.createArrayBuilder();
-        for (int i = 0; i < arrayAnyType.length; i++){
-            jsonValues.add( arrayAnyType[i]);
+    private JsonArrayBuilder convertElementToArray(Object objectArray, Class<?> fieldArray) {
+        Class<?> componentType = fieldArray.componentType();
+        var arrayBuilder = Json.createArrayBuilder();
+
+        int length = Array.getLength(objectArray);
+
+        for (int i = 0; i < length; i++) {
+            arrayBuilder.add(jsonValueFromAnyType(Array.get(objectArray, i), componentType));
         }
 
-        return jsonValues.build();
 
+        return arrayBuilder;
     }
 
-    private  JsonArrayBuilder convertElementToArray(Object objectArray, Field fieldArray){
-        Type componentType = fieldArray.getType().getComponentType();
-//        JsonArray arr = Json.createArrayBuilder();
+    private JsonValue jsonValueFromAnyType(Object objectAnyType, Class<?> typeElement) {
 
-
-        if (byte.class.equals(componentType)) {
-            return Json.createArrayBuilder(Arrays.asList(objectArray));
+        if (byte.class.equals(typeElement) || short.class.equals(typeElement)
+                || char.class.equals(typeElement) || int.class.equals(typeElement)) {
+            return Json.createValue((int) objectAnyType);
         }
-        if (short.class.equals(componentType)) {
-        }
-        if (char.class.equals(componentType)) {
-        }
-        if (int.class.equals(componentType)) {
+        if (long.class.equals(typeElement)) {
+            return Json.createValue((int) objectAnyType);
 
         }
-        if (long.class.equals(componentType)) {
-
-        }
-        if (float.class.equals(componentType)) {
-
-        }
-        if (double.class.equals(componentType)) {
+        if (float.class.equals(typeElement) || double.class.equals(typeElement)) {
+            return Json.createValue((double) objectAnyType);
 
         }
 
+        if (boolean.class.equals(typeElement)) {
+            return (boolean) objectAnyType ? JsonValue.TRUE : JsonValue.FALSE;
+        }
 
-
-    }
+        return Json.createValue((String) objectAnyType);
 
     }
 
 }
+
+

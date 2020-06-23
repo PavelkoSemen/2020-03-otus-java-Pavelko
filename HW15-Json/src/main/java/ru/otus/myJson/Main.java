@@ -26,19 +26,11 @@ public class Main {
         MyJson myJson = new MyJson();
 
         String toJson = myJson.toJson(person);
-
         Person person1 = gson.fromJson(toJson, Person.class);
-
-
-        System.out.println(myJson.toJson(person));
-
-        System.out.println(toJson);
-        System.out.println(gson.toJson(person));
 
         System.out.println(person1.equals(person));
 
-
-
     }
+
 
 }

@@ -7,6 +7,7 @@ import java.util.Objects;
 public class Person {
     private String name;
     private int age;
+    private boolean isMarried = false;
     private List<String> stringList;
     public ArrayList<Integer> integerArrayList;
     public int [] array = new int[]{1, 2, 3, 4};
@@ -36,7 +37,7 @@ public class Person {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Person that = (Person) obj;
-        return name == that.name &&
+        return name.equals(that.name) &&
                 age == that.age;
     }
 
