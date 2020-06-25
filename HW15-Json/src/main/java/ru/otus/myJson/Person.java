@@ -5,8 +5,11 @@ import java.util.List;
 import java.util.Objects;
 
 public class Person {
+    private float testFloat = 2.222f;
+    private byte testByte = 2;
     private String name;
     private int age;
+    private int [] age1;
     private boolean isMarried = false;
     private List<String> stringList;
     public ArrayList<Integer> integerArrayList;

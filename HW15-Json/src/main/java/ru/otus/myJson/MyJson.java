@@ -42,12 +42,15 @@ public class MyJson {
                     continue;
                 }
                 if (typeElement.isArray()) {
-                    System.out.println(Array.getLength(element));
-                    jsonObjectForString.add(nameElement, convertElementToArray(element, typeElement));
+                    jsonObjectForString.add(nameElement, convertElementToArray(element));
+                    continue;
+                }
+                if (typeElement.isPrimitive()) {
+                    jsonObjectForString.add(nameElement, jsonValueFromAnyType(element, element.getClass()));
                     continue;
                 }
 
-                jsonObjectForString.add(nameElement, jsonValueFromAnyType(element, typeElement));
+                jsonObjectForString.add(nameElement, element.toString());
 
             }
 
@@ -61,17 +64,15 @@ public class MyJson {
         Collection<?> objects = (Collection<?>) objectCollection;
         return Json.createArrayBuilder(objects);
 
-
     }
 
-    private JsonArrayBuilder convertElementToArray(Object objectArray, Class<?> fieldArray) {
-        Class<?> componentType = fieldArray.componentType();
+    private JsonArrayBuilder convertElementToArray(Object objectArray) {
         var arrayBuilder = Json.createArrayBuilder();
-
         int length = Array.getLength(objectArray);
+        Class<?> typeElement = length > 0 ? Array.get(objectArray, 1).getClass() : null;
 
         for (int i = 0; i < length; i++) {
-            arrayBuilder.add(jsonValueFromAnyType(Array.get(objectArray, i), componentType));
+            arrayBuilder.add(jsonValueFromAnyType(Array.get(objectArray, i), typeElement));
         }
 
 
@@ -80,24 +81,30 @@ public class MyJson {
 
     private JsonValue jsonValueFromAnyType(Object objectAnyType, Class<?> typeElement) {
 
-        if (byte.class.equals(typeElement) || short.class.equals(typeElement)
-                || char.class.equals(typeElement) || int.class.equals(typeElement)) {
+        if (Byte.class.isAssignableFrom(typeElement)) {
+            return Json.createValue((byte) objectAnyType);
+        }
+        if (Short.class.isAssignableFrom(typeElement)) {
+            return Json.createValue((short) objectAnyType);
+        }
+        if (Character.class.isAssignableFrom(typeElement)) {
+            return Json.createValue((char) objectAnyType);
+        }
+        if (Integer.class.isAssignableFrom(typeElement)) {
             return Json.createValue((int) objectAnyType);
         }
-        if (long.class.equals(typeElement)) {
-            return Json.createValue((int) objectAnyType);
+        if (Long.class.isAssignableFrom(typeElement)) {
+            return Json.createValue((long) objectAnyType);
+        }
 
-        }
-        if (float.class.equals(typeElement) || double.class.equals(typeElement)) {
+        if (Double.class.isAssignableFrom(typeElement)) {
             return Json.createValue((double) objectAnyType);
-
+        }
+        if (Float.class.isAssignableFrom(typeElement)) {
+            return Json.createValue((float) objectAnyType);
         }
 
-        if (boolean.class.equals(typeElement)) {
-            return (boolean) objectAnyType ? JsonValue.TRUE : JsonValue.FALSE;
-        }
-
-        return Json.createValue((String) objectAnyType);
+        return (boolean) objectAnyType ? JsonValue.TRUE : JsonValue.FALSE;
 
     }
 
