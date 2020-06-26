@@ -6,6 +6,10 @@ sourceCompatibility = JavaVersion.VERSION_13
 targetCompatibility = JavaVersion.VERSION_13
 
 dependencies {
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-engine'
+    testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-params'
+    testImplementation group: 'org.assertj', name: 'assertj-core'
+    testImplementation group: 'org.mockito', name: 'mockito-junit-jupiter'
     implementation 'com.google.guava:guava'
     implementation 'com.google.code.gson:gson'
     implementation 'javax.json:javax.json-api'
@@ -13,4 +17,8 @@ dependencies {
 }
 
 test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }

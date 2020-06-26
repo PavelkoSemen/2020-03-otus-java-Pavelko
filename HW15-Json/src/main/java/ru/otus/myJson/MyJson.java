@@ -6,67 +6,69 @@ import java.util.Collection;
 
 public class MyJson {
 
-    public String toJson(Object objectToJson) throws IllegalAccessException {
-
-        if (objectToJson == null) {
-
+    public String toJson(Object objectToJson) {
+        if (objectToJson != null) {
+            try {
+                return anyObjectToJson(objectToJson, objectToJson.getClass()).toString();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        } else {
             return JsonValue.NULL.toString();
-
         }
-        return toJson(objectToJson, objectToJson.getClass());
 
+        return null;
     }
 
-    private String toJson(Object objectToJson, Class<?> classOfObject) throws IllegalAccessException {
+    private JsonValue anyObjectToJson(Object anyObject, Class<?> classAnyObject) throws IllegalAccessException {
 
-        var jsonObjectForString = Json.createObjectBuilder();
+        if (Modifier.isTransient(classAnyObject.getModifiers())) {
+            return JsonValue.EMPTY_JSON_OBJECT;
+        }
+        if (Collection.class.isAssignableFrom(classAnyObject)) {
 
-        Field[] fields = classOfObject.getDeclaredFields();
+            return convertElementToCollection(anyObject);
+
+        }
+        if (classAnyObject.isArray()) {
+            return convertElementToArray(anyObject);
+        }
+        if (classAnyObject.isPrimitive() || Number.class.isAssignableFrom(classAnyObject)
+                || Character.class.isAssignableFrom(classAnyObject)) {
+            return jsonValueFromAnyType(anyObject, anyObject.getClass());
+        }
+        if (String.class.isAssignableFrom(classAnyObject)) {
+            return Json.createValue(anyObject.toString());
+        }
+
+        Field[] fields = classAnyObject.getDeclaredFields();
+
+        var jsonBuilderSpecialObj = Json.createObjectBuilder();
 
         for (Field field : fields) {
-
             field.setAccessible(true);
 
-            Object element = field.get(objectToJson);
+            Object element = field.get(anyObject);
             String nameElement = field.getName();
             Class<?> typeElement = field.getType();
-
-            if (element != null) {
-
-                if (Modifier.isTransient(field.getModifiers())) {
-                    continue;
-                }
-                if (Collection.class.isAssignableFrom(typeElement)) {
-
-                    jsonObjectForString.add(nameElement, convertElementToCollection(element));
-                    continue;
-                }
-                if (typeElement.isArray()) {
-                    jsonObjectForString.add(nameElement, convertElementToArray(element));
-                    continue;
-                }
-                if (typeElement.isPrimitive()) {
-                    jsonObjectForString.add(nameElement, jsonValueFromAnyType(element, element.getClass()));
-                    continue;
-                }
-
-                jsonObjectForString.add(nameElement, element.toString());
-
-            }
-
+            jsonBuilderSpecialObj.add(nameElement, anyObjectToJson(element, typeElement));
         }
 
-        return jsonObjectForString.build().toString();
+        return jsonBuilderSpecialObj.build();
+
+
     }
 
-    private JsonArrayBuilder convertElementToCollection(Object objectCollection) {
+    private JsonValue convertElementToCollection(Object objectCollection) {
 
         Collection<?> objects = (Collection<?>) objectCollection;
-        return Json.createArrayBuilder(objects);
+
+
+        return Json.createArrayBuilder(objects).build();
 
     }
 
-    private JsonArrayBuilder convertElementToArray(Object objectArray) {
+    private JsonValue convertElementToArray(Object objectArray) {
         var arrayBuilder = Json.createArrayBuilder();
         int length = Array.getLength(objectArray);
         Class<?> typeElement = length > 0 ? Array.get(objectArray, 1).getClass() : null;
@@ -75,8 +77,7 @@ public class MyJson {
             arrayBuilder.add(jsonValueFromAnyType(Array.get(objectArray, i), typeElement));
         }
 
-
-        return arrayBuilder;
+        return arrayBuilder.build();
     }
 
     private JsonValue jsonValueFromAnyType(Object objectAnyType, Class<?> typeElement) {
@@ -88,7 +89,7 @@ public class MyJson {
             return Json.createValue((short) objectAnyType);
         }
         if (Character.class.isAssignableFrom(typeElement)) {
-            return Json.createValue((char) objectAnyType);
+            return Json.createValue(objectAnyType.toString());
         }
         if (Integer.class.isAssignableFrom(typeElement)) {
             return Json.createValue((int) objectAnyType);
